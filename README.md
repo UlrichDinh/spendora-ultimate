@@ -66,5 +66,5 @@ When you need to adjust database schemas or edit the AI parsing logic:
 
 ### 3. Managing the Repositories
 Since they are two separate Git repositories:
-- `spendora`: You can freely push this to a shared GitHub repo and invite your contractor.
-- `spendora-backend`: You should push this to a **completely separate, private** GitHub repository where you are the sole contributor.
+- `spendora`: You can freely push this to a shared GitHub repo (`UlrichDinh/spendora`) and invite your contractor.
+- `spendora-ultimate`: You should push the outer master container to your completely separate, private GitHub repository (`UlrichDinh/spendora-ultimate`) where you are the sole contributor.
