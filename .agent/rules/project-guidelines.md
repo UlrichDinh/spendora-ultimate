@@ -17,6 +17,12 @@ trigger: always_on
 - **Offline / Cloud Dual-Tier Storage**: Evaluate standard DB calls. Free-tier users must have offline local-first sync behavior before interacting with the cloud.
 - **Handling OCR Data**: AI prompt parsing strategy relies on pure JSON output and contextual mapping (counting items, multipliers, totals). The AI is told "READ THE RECEIPT, DO NOT RE-CALCULATE." All mathematical totals are explicitly derived from exactly what is printed on the physical receipt.
 
+## Repository Structure & Git Ops
+- This project consists of two separate Git repositories:
+  1. **Frontend App (`spendora/`)**: The React Native application. Git commands for UI/frontend changes must be executed inside the `spendora/spendora` directory.
+  2. **Backend Services (`spendora-backend/`)**: The Supabase Edge Functions, database migrations, AI prompts, and backend documentation. Git commands for backend changes must be executed inside the `spendora/spendora-backend` directory.
+- Always run `git status`, `git add`, `git commit`, and `git push` inside the correct sub-directory corresponding to the modified files. Never try to commit backend files from the frontend repo or vice versa.
+
 ## Troubleshooting & Commits
 - Check `lessons_learned.md` for undocumented behaviors or recurring errors before asking the user for system configurations.
 - Use explicit and semantic Conventional Commits for git pushes (e.g. `feat(scanner): ...`, `fix(ui): ...`).
