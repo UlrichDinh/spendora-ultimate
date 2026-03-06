@@ -114,7 +114,7 @@ CRITICAL — READ THE RECEIPT, DO NOT RE-CALCULATE:
    If multiple tax rates are listed (e.g., 14% and 25.5%), sum them into a single "tax" value.
    If no tax is shown on the receipt, return null.
 
-9. DECIMAL SEPARATOR: Convert commas (',') to dots ('.') for all numbers.
+9. STRICT DECIMAL SEPARATOR: You are returning a valid JSON object. In JSON, numbers (floats) MUST use dots (.), NEVER commas (,). Convert all printed commas (e.g. '12,50') to JS dot-notation floats (e.g. 12.50). Using a comma in a number field will break the parser.
 
 10. Use spatial reasoning to connect RIGHT-SIDE prices to their corresponding item lines if columns are misaligned.
 
