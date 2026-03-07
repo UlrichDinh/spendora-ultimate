@@ -217,12 +217,15 @@ serve(async (req: Request) => {
 
     if (uncachedItems.length > 0) {
       const prompt = `Classify these receipt items into a 3-level taxonomy. For each raw item name:
-- "canonical": Clean English product name (e.g., "Chicken Fillet", "Organic Eggs")
+- "canonical": Clean English product name (e.g., "Chicken Fillet", "Organic Eggs", "Chocolate Bar")
 - "super_category": One of: ${VALID_SUPER_CATEGORIES.join(', ')}
 - "category": One of: ${VALID_CATEGORIES.join(', ')}
 - "subcategory": A granular sub-group (e.g., "poultry", "leafy_greens", "gasoline")
 
-The raw names may be in ANY language (Finnish, Swedish, German, English, etc.) with weights, sizes, or abbreviations. Translate and normalize them.
+CRITICAL RULES:
+1. You MUST return exactly ${uncachedItems.length} objects. Do not skip ANY items, even if you are unsure what they are.
+2. If an item is ambiguous or appears to be a brand name or localized abbreviation, make your best educated guess based on common grocery store items and global brands (e.g., classifying a local chocolate brand as "Chocolate").
+3. The "raw" field MUST match the input string exactly.
 
 Super category mapping:
 - groceries: meat, dairy, fruits_vegetables, bakery, frozen, snack, beverage, condiment, grains
@@ -237,7 +240,7 @@ Items to classify:
 ${uncachedItems.map((i: { name_raw: string }, idx: number) => `${idx + 1}. "${i.name_raw}"`).join('\n')}
 
 Return ONLY a JSON array, no markdown:
-[{ "raw": "original name", "canonical": "Clean Name", "super_category": "groceries", "category": "fruits_vegetables", "subcategory": "fruits" }]`;
+[{ "raw": "exact original name", "canonical": "Clean Name", "super_category": "groceries", "category": "fruits_vegetables", "subcategory": "fruits" }]`;
 
       const gptRes = await fetch('https://api.openai.com/v1/chat/completions', {
         method: 'POST',
