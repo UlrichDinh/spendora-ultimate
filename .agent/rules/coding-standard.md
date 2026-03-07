@@ -158,3 +158,30 @@ git commit -m "fix: correct item extraction in receipt scanner"
 - `WIP`
 - `final`
 - `add login and fix scanner and update nav`
+
+---
+
+# 4. Optimization — Architecture First, Hooks Last
+
+Avoid reaching for `useMemo` or `useCallback` as the first line of defense against re-renders. Hooks have their own overhead and can make code harder to debug.
+
+## Prioritize these strategies first:
+
+### 1. Component Splitting (Slow Component Pattern)
+If a part of your UI is heavy to render, move it into its own component. React will only re-render that specific child if its props change, without needing to memoize values in the parent.
+
+### 2. State Colocation
+Move state as close as possible to where it is used. Avoid global or high-level parent state if it's only needed by a deep child. This limits the "blast radius" of re-renders.
+
+### 3. Derived State in Stores (Zustand)
+Perform expensive calculations (filtering, searching, aggregating) inside the store or action. The component should ideally consume the "final" value rather than computing it during render.
+
+### 4. Moving State Down / Passing Components as Props
+Use the "children" or "slots" pattern to pass expensive static UI through a dynamic parent.
+
+## Use `useMemo` / `useCallback` only when:
+- You are passing a non-primitive value to a component wrapped in `React.memo`.
+- You are passing a value as a dependency to another hook (like `useEffect`).
+- The calculation is genuinely expensive (e.g., processing > 1000 items or complex regex) and profiling proves it's a bottleneck.
+
+
