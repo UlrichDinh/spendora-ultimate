@@ -566,3 +566,36 @@ If the Mac Mini has 24GB of Unified Memory, it can run significantly larger quan
 ### Lesson: Local State for Decimal Input Interaction
 - **Problem**: When editing prices, users found it impossible to type a dot (`.`) because the state-controlled `value` would immediately parse the trailing dot and strip it if it didn't have a trailing digit yet.
 - **Solution**: Maintain a local "raw" string state for the text input during the editing session, and only commit/parse the number to the global store on `blur` or when the user saves. This allows a natural typing experience for decimals.
+
+---
+
+## 23. Caching & Performance Patterns
+
+### Lesson: Multi-Month Caching with `cacheMap`
+- **Problem**: In the Trends screen, switching between months required a fresh database query every time, causing the UI to flicker or show spinning loaders even if the user was just navigating back and forth between January and February.
+- **Solution**: Implemented a `cacheMap: Record<string, CachedTrendData>` in `useTrendsStore`.
+  - When a month is fetched, the results are stored in the map using a key like `monthly-2024-1`.
+  - Navigating back to an old month now results in an **instant** UI render using the cached values.
+- **Benefit**: Zero-latency navigation for previously viewed data.
+
+### Lesson: Stale-While-Revalidate (SWR) Logic
+- **Problem**: Even with a cache, the data might be old (e.g., if the user scanned a new receipt while looking at the Trends screen).
+- **Solution**: The `fetchTrends` action uses an SWR approach:
+  1. Check if cache exists for the month.
+  2. If YES: Populate the UI instantly from cache but set `backgroundRefreshing: true`.
+  3. Perform a fresh background query to Supabase.
+  4. Once fresh data arrives, update the UI and the cache silently.
+- **Benefit**: The UI is always responsive (no blockers) but eventually consistent.
+
+### Lesson: Deep vs. Partial Persistence
+- **Problem**: Persisting an entire Zustand store to `AsyncStorage` can lead to performance degradation if the store contains temporary state (like `loading` or large lists that change constantly).
+- **Solution**: Used the `partialize` feature of Zustand's `persist` middleware.
+  - In `useReceiptStore`, we only persist crucial data like the 14-day chart data and 4-week category breakdown.
+  - In `useTrendsStore`, we only persist the `cacheMap`.
+- **Benefit**: Drastically reduces disk I/O and app startup time by avoiding serialization of transient UI states.
+
+### Lesson: Image Disk Caching with `expo-image`
+- **Problem**: Scrolling through History lists or Category details caused image "flashing" or high memory usage when using standard React Native `<Image>` components.
+- **Solution**: Switched to `expo-image`. It handles native disk and memory caching automatically on both Android (Glide) and iOS (SDWebImage).
+- **Benefit**: Significantly smoother scroll performance and lower risk of Out-of-Memory (OOM) crashes on low-end devices.
+
