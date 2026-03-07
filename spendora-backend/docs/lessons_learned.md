@@ -599,3 +599,36 @@ If the Mac Mini has 24GB of Unified Memory, it can run significantly larger quan
 - **Solution**: Switched to `expo-image`. It handles native disk and memory caching automatically on both Android (Glide) and iOS (SDWebImage).
 - **Benefit**: Significantly smoother scroll performance and lower risk of Out-of-Memory (OOM) crashes on low-end devices.
 
+---
+
+## 24. Native Hardware Optimization: Manual Camera vs. Plugins
+
+### Lesson: Control & Performance Trade-offs
+- **Problem**: The `react-native-document-scanner-plugin` was a high-level wrapper that offered zero control over flash, orientation, or custom viewfinder behavior. It was also prone to "SDK not found" errors on various Android environments.
+- **Solution**: Migrated to a manual camera implementation using `expo-camera`.
+- **Benefit**: 
+  - **Memory Efficiency**: We only load the camera hardware we actually need.
+  - **UI Performance**: Built a custom lightweight viewfinder overlay using absolute positioned `<View>` components rather than heavy native overlays.
+  - **Reliability**: Eliminated dependencies on third-party binary document scanners that were hard to debug.
+
+---
+
+## 25. Memory Leak Prevention in Async Effects
+
+### Lesson: The `isMounted` Pattern in `useEffect`
+- **Problem**: Async operations (like fetching a merchant logo or parsing a receipt) would occasionally finish after a component was unmounted, triggering the "Can't perform state update on unmounted component" warning and potentially leaking memory.
+- **Solution**: Standardized the `isMounted` guard pattern in all async-state hooks:
+  ```tsx
+  useEffect(() => {
+    let isMounted = true;
+    const execute = async () => {
+      const data = await fetchSomething();
+      if (isMounted) setState(data);
+    };
+    execute();
+    return () => { isMounted = false; };
+  }, [deps]);
+  ```
+- **Benefit**: Essential for components used in high-frequency lists (like `MerchantLogo`) where many items are mounted and unmounted rapidly during scrolling.
+
+
